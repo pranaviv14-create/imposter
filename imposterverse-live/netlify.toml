@@ -1,0 +1,40 @@
+# Netlify — hosts the client (the React + Vite app).
+# The game server runs separately on Render; see render.yaml and README.md.
+#
+# One thing must be set by hand in Netlify:
+#   Site configuration -> Environment variables -> VITE_SERVER_URL = https://<your-service>.onrender.com
+# It is read at BUILD time, so trigger a new deploy after changing it.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Single-page app: any path that is not a real file serves the app.
+# (Real files — /assets/*, /models/*, /mediapipe/*, /sw.js — are always served first.)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Camera and microphone are only ever used by the app itself.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Permissions-Policy = "camera=(self), microphone=(self)"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+
+# Build output is content-hashed, so it can be cached for good.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# The service worker and the page itself must always be fresh.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"

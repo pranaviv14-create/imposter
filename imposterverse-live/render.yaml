@@ -1,0 +1,30 @@
+# Render — hosts the game server (Node.js + WebSocket).
+# The client is hosted separately on Netlify; see netlify.toml and README.md.
+#
+# Using this file: Render dashboard -> New -> Blueprint -> pick this repository.
+# Or create a Web Service by hand with the same values (they are listed in README.md).
+
+services:
+  - type: web
+    name: imposterverse-live-server
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # The address of your Netlify site, e.g. https://my-game.netlify.app
+      # Several addresses can be separated with commas. No trailing slash.
+      - key: ALLOWED_ORIGINS
+        sync: false
+      # A TURN relay, strongly recommended so players on different networks can
+      # see and hear each other. Get these three values from a TURN provider.
+      - key: TURN_URL
+        sync: false
+      - key: TURN_USERNAME
+        sync: false
+      - key: TURN_CREDENTIAL
+        sync: false
